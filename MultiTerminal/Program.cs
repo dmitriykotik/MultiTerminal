@@ -7,11 +7,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO.MemoryMappedFiles;
+using Microsoft.Win32;
 
 namespace MultiTerminal
 {
     internal class Program
     {
+        
         static void Main(string[] args)
         {
             
@@ -50,21 +53,48 @@ namespace MultiTerminal
 
         private static void mainnonterminal()
         {
+            Console.WriteLine(@"MultiPlayer MultiTerminal [V0.1 DEV]
+(C) Корпорация MultiPlayer (MultiPlayer Corporation). Все права защищены.           
+");
+            
             while (true)
             {
                 Console.ResetColor();
-                Console.Write(@"USER $ ");
+                Console.Write($@"{Environment.UserName}@Terminal $ ");
                 string[] enter = Console.ReadLine().Split();
                 switch (enter[0])
                 {
+                    case "echo":
+                        enter[0] = "";
+                        Console.WriteLine(string.Join(" ", enter));
+                        break;
+
+                    case "clock":
+                        clock();
+                        break;
+
                     case "plus":
                         if (enter.Length == 3)
                         {
-                            Console.WriteLine(Convert.ToInt16(enter[1]) + Convert.ToInt16(enter[2]));
+                            plus(enter[1], enter[2]);
                         }
                         else
                         {
-                            Console.WriteLine("Нельзя сложить менее 2-х или более 2-х чисел!");
+                            int len = enter.Length - 1;
+                            Console.WriteLine($"[MT | Plus | Pre-Start] Перебор/Нехватает чисел для запуска программы Plus! Указанно аргументов: {len}");
+                            Console.WriteLine("[MT | Plus | Pre-Start | Help > plus_args] plus (arg 1) (arg 2)");
+                        }
+                        break;
+                    case "minus":
+                        if (enter.Length == 3)
+                        {
+                            minus(enter[1], enter[2]);
+                        }
+                        else
+                        {
+                            int len = enter.Length - 1;
+                            Console.WriteLine($"[MT | Minus | Pre-Start] Перебор/Нехватает чисел для запуска программы Plus! Указанно аргументов: {len}");
+                            Console.WriteLine("[MT | Minus | Pre-Start | Help > minus_args] minus (arg 1) (arg 2)");
                         }
                         break;
                     default:
@@ -97,5 +127,44 @@ namespace MultiTerminal
                 }
             }
         }
+
+
+
+
+
+        //Основные методы команд
+
+        //Методы прибавления
+        private static void plus(string arg1, string arg2)
+        {
+            ProcessStartInfo startinfo = new ProcessStartInfo("plus.exe", $"{arg1} {arg2}");
+            startinfo.CreateNoWindow = false;
+            startinfo.UseShellExecute = false;
+            Process p = Process.Start(startinfo);
+            p.WaitForExit();
+        }
+        //Метод удавления
+
+        private static void minus(string arg1, string arg2)
+        {
+            ProcessStartInfo startinfo = new ProcessStartInfo("minus.exe", $"{arg1} {arg2}");
+            startinfo.CreateNoWindow = false;
+            startinfo.UseShellExecute = false;
+            Process p = Process.Start(startinfo);
+            p.WaitForExit();
+        }
+
+        //Метод часов
+        private static void clock()
+        {
+            ProcessStartInfo startinfo = new ProcessStartInfo("clock.exe");
+            startinfo.CreateNoWindow = false;
+            startinfo.UseShellExecute = false;
+            Process p = Process.Start(startinfo);
+            p.WaitForExit();
+        }
+
+        
+        
     }
 }
