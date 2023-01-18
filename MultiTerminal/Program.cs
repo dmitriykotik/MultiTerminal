@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.MemoryMappedFiles;
 using Microsoft.Win32;
+using System.Net.Mail;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using System.Xml.Linq;
 
 namespace MultiTerminal
 {
@@ -50,9 +54,12 @@ namespace MultiTerminal
         {
 
         }
-
+        public static string playedFile;
         private static void mainnonterminal()
         {
+            WMPLib.WindowsMediaPlayer wplayer = new WMPLib.WindowsMediaPlayer();
+
+
             Console.WriteLine(@"MultiPlayer MultiTerminal [V0.1 DEV]
 (C) Корпорация MultiPlayer (MultiPlayer Corporation). Все права защищены.           
 ");
@@ -64,6 +71,56 @@ namespace MultiTerminal
                 string[] enter = Console.ReadLine().Split();
                 switch (enter[0])
                 {
+                    case "app":
+                        if (enter.Length == 4)
+                        {
+                            if (enter[1] == "music")
+                            {
+                                if (enter[2] == "play")
+                                {
+                                    try
+                                    {
+                                        wplayer.URL = enter[3];
+                                        wplayer.controls.play();
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex.Message);
+                                    }
+                                }
+                                
+                            }
+                        }
+                        else if (enter.Length == 3) 
+                        {
+                            if (enter[1] == "music")
+                            {
+                                if (enter[2] == "stop")
+                                {
+                                    try
+                                    {
+                                        wplayer.controls.stop();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex.Message);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            
+                        }
+                        break;
+
+                    case "smtp":
+                        smtp();
+                        break;
+                    case "help":
+                        help();
+                        break;
                     case "echo":
                         enter[0] = "";
                         Console.WriteLine(string.Join(" ", enter));
@@ -137,31 +194,124 @@ namespace MultiTerminal
         //Методы прибавления
         private static void plus(string arg1, string arg2)
         {
-            ProcessStartInfo startinfo = new ProcessStartInfo("plus.exe", $"{arg1} {arg2}");
-            startinfo.CreateNoWindow = false;
-            startinfo.UseShellExecute = false;
-            Process p = Process.Start(startinfo);
-            p.WaitForExit();
+            try
+            {
+                ProcessStartInfo startinfo = new ProcessStartInfo("plus.exe", $"{arg1} {arg2}");
+                startinfo.CreateNoWindow = false;
+                startinfo.UseShellExecute = false;
+                Process p = Process.Start(startinfo);
+                p.WaitForExit();
+            }
+            catch(Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                if (File.Exists("plus.exe"))
+                {
+                    Console.WriteLine($"Программа найдена, но запуск не удался. Причина: {ex.Message}");
+                }
+                else {
+                    Console.WriteLine($"Программа не найдена! {ex.Message}");
+                }
+            }
         }
         //Метод удавления
 
         private static void minus(string arg1, string arg2)
         {
-            ProcessStartInfo startinfo = new ProcessStartInfo("minus.exe", $"{arg1} {arg2}");
-            startinfo.CreateNoWindow = false;
-            startinfo.UseShellExecute = false;
-            Process p = Process.Start(startinfo);
-            p.WaitForExit();
+            try
+            {
+                ProcessStartInfo startinfo = new ProcessStartInfo("minus.exe", $"{arg1} {arg2}");
+                startinfo.CreateNoWindow = false;
+                startinfo.UseShellExecute = false;
+                Process p = Process.Start(startinfo);
+                p.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                if (File.Exists("minus.exe"))
+                {
+                    Console.WriteLine($"Программа найдена, но запуск не удался. Причина: {ex.Message}");
+                }
+                else
+                {
+                    Console.WriteLine($"Программа не найдена! {ex.Message}");
+                }
+            }
         }
 
         //Метод часов
         private static void clock()
         {
-            ProcessStartInfo startinfo = new ProcessStartInfo("clock.exe");
-            startinfo.CreateNoWindow = false;
-            startinfo.UseShellExecute = false;
-            Process p = Process.Start(startinfo);
-            p.WaitForExit();
+            try
+            {
+                ProcessStartInfo startinfo = new ProcessStartInfo("clock.exe");
+                startinfo.CreateNoWindow = false;
+                startinfo.UseShellExecute = false;
+                Process p = Process.Start(startinfo);
+                p.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                if (File.Exists("clock.exe"))
+                {
+                    Console.WriteLine($"Программа найдена, но запуск не удался. Причина: {ex.Message}");
+                }
+                else
+                {
+                    Console.WriteLine($"Программа не найдена! {ex.Message}");
+                }
+            }
+        }
+
+        private static void smtp()
+        {
+            try
+            {
+                Console.Write("Введите имя: ");
+                string name = Console.ReadLine();
+                Console.WriteLine("");
+                Console.Write("Введите почту на которую вы отправляете сообщение: ");
+                string toemail = Console.ReadLine();
+                Console.WriteLine("");
+                Console.Write("Введите тему: ");
+                string subj = Console.ReadLine();
+                Console.WriteLine("");
+                Console.Write("Введите текст или html код: ");
+                string tex = Console.ReadLine();
+                MailAddress from = new MailAddress("multiplayercorporation@gmail.com", name + " - MultiMail");
+                MailAddress to = new MailAddress(toemail);
+                MailMessage m = new MailMessage(from, to);
+                m.Subject = subj;
+                m.Body = tex + "<br> <br> Отправлено из MultiTerminal <br> (C) Copyright MultiPlayer 2019-2023 <br> https://multiplayercorporation.mya5.ru";
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                smtp.Credentials = new NetworkCredential("multiplayercorporation@gmail.com", "pbmaikdrcczrvweq");
+                smtp.EnableSsl = true;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Попытка отправить сообщение...");
+                smtp.Send(m);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Успешно!");
+                Console.ResetColor();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                MessageBox.Show($"Не удаётся отправить сообщение! Причина: {ex.Message}", "Ошибка!");
+            }
+        }
+
+        private static void help()
+        {
+            Console.WriteLine(@"Справка команд | HELP:
+ clock - Часы
+ plus (arg1) (arg2) - Сумма чисел
+ minus (arg1) (arg2) - Разность чисел
+ help - Справка
+ echo (text) - Повтор текста за вами
+ smtp - Отправка сообщений на почту");
         }
 
         
