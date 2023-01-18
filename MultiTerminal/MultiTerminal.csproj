@@ -117,5 +117,11 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MultiINI\MultiINI.csproj">
+      <Project>{c6195452-7289-4959-bca0-c40c535f89fa}</Project>
+      <Name>MultiINI</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

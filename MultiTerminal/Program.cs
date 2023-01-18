@@ -13,6 +13,7 @@ using System.Net.Mail;
 using static System.Net.Mime.MediaTypeNames;
 using System.Net;
 using System.Xml.Linq;
+using MultiINI;
 
 namespace MultiTerminal
 {
@@ -54,20 +55,39 @@ namespace MultiTerminal
         {
 
         }
-        public static string playedFile;
         private static void mainnonterminal()
         {
+            if (File.Exists("themes.ini"))
+            {
+
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(@"Продолжить работу в терминале нельзя, так как отсутствует файл темы.");
+            }
+            var MyIni = new INI("themes.ini");
             WMPLib.WindowsMediaPlayer wplayer = new WMPLib.WindowsMediaPlayer();
 
 
-            Console.WriteLine(@"MultiPlayer MultiTerminal [V0.1 DEV]
-(C) Корпорация MultiPlayer (MultiPlayer Corporation). Все права защищены.           
-");
+            //Console.WriteLine(@"MultiPlayer MultiTerminal [V0.1 DEV]");
+            //Console.WriteLine("(C) Корпорация MultiPlayer (MultiPlayer Corporation). Все права защищены.");
+            Console.WriteLine(MyIni.Read("welcomeTextOne", "main"));
+            Console.WriteLine(MyIni.Read("welcomeTextTwo", "main"));
+
+            Console.Title = MyIni.Read("startTitle", "startTitleConsole");
             
             while (true)
             {
                 Console.ResetColor();
-                Console.Write($@"{Environment.UserName}@Terminal $ ");
+                if (MyIni.Read("enableCustomTextEnter", "enterConsole") == "0")
+                {
+                    Console.Write($@"{Environment.UserName}@Terminal $ ");
+                }
+                else
+                {
+                    Console.Write(MyIni.Read("customTextEnter", "enterConsole"));
+                }
                 string[] enter = Console.ReadLine().Split();
                 switch (enter[0])
                 {
@@ -159,12 +179,16 @@ namespace MultiTerminal
                         {
                             try
                             {
-                                Process.Start(enter[0]);
+                                ProcessStartInfo startinfo = new ProcessStartInfo(enter[0]);
+                                startinfo.CreateNoWindow = false;
+                                startinfo.UseShellExecute = false;
+                                Process p = Process.Start(startinfo);
+                                p.WaitForExit();
                             }
                             catch (Exception e)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"Не удаётся запустить файл, причина: {e.Message}");
+                                Console.WriteLine($"{MyIni.Read("errorStartFile", "errors")} {e.Message}");
                             }
                         }
                         else
@@ -176,8 +200,8 @@ namespace MultiTerminal
                             else
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($@"""{enter[0]}"" не является внутренней или внешней
-командой, исполняемой программой или пакетным файлом.");
+                                Console.WriteLine($@"""{enter[0]}"" {MyIni.Read("unknownCommand1", "errors")}");
+                                Console.WriteLine($@"{MyIni.Read("unknownCommand2", "errors")}");
                             }
                         }
                         break;
@@ -194,6 +218,7 @@ namespace MultiTerminal
         //Методы прибавления
         private static void plus(string arg1, string arg2)
         {
+            var MyIni = new INI("themes.ini");
             try
             {
                 ProcessStartInfo startinfo = new ProcessStartInfo("plus.exe", $"{arg1} {arg2}");
@@ -207,10 +232,10 @@ namespace MultiTerminal
                 Console.ForegroundColor = ConsoleColor.Red;
                 if (File.Exists("plus.exe"))
                 {
-                    Console.WriteLine($"Программа найдена, но запуск не удался. Причина: {ex.Message}");
+                    Console.WriteLine($"{MyIni.Read("PLUSandMINUSandCLOCKprogrammFoundStartError", "errors")} {ex.Message}");
                 }
                 else {
-                    Console.WriteLine($"Программа не найдена! {ex.Message}");
+                    Console.WriteLine($"{MyIni.Read("PLUSandMINUSandCLOCKprogrammUnFound", "errors")} {ex.Message}");
                 }
             }
         }
@@ -218,6 +243,7 @@ namespace MultiTerminal
 
         private static void minus(string arg1, string arg2)
         {
+            var MyIni = new INI("themes.ini");
             try
             {
                 ProcessStartInfo startinfo = new ProcessStartInfo("minus.exe", $"{arg1} {arg2}");
@@ -231,11 +257,11 @@ namespace MultiTerminal
                 Console.ForegroundColor = ConsoleColor.Red;
                 if (File.Exists("minus.exe"))
                 {
-                    Console.WriteLine($"Программа найдена, но запуск не удался. Причина: {ex.Message}");
+                    Console.WriteLine($"{MyIni.Read("PLUSandMINUSandCLOCKprogrammFoundStartError", "errors")} {ex.Message}");
                 }
                 else
                 {
-                    Console.WriteLine($"Программа не найдена! {ex.Message}");
+                    Console.WriteLine($"{MyIni.Read("PLUSandMINUSandCLOCKprogrammUnFound", "errors")} {ex.Message}");
                 }
             }
         }
@@ -243,6 +269,7 @@ namespace MultiTerminal
         //Метод часов
         private static void clock()
         {
+            var MyIni = new INI("themes.ini");
             try
             {
                 ProcessStartInfo startinfo = new ProcessStartInfo("clock.exe");
@@ -256,17 +283,18 @@ namespace MultiTerminal
                 Console.ForegroundColor = ConsoleColor.Red;
                 if (File.Exists("clock.exe"))
                 {
-                    Console.WriteLine($"Программа найдена, но запуск не удался. Причина: {ex.Message}");
+                    Console.WriteLine($"{MyIni.Read("PLUSandMINUSandCLOCKprogrammUnFound", "errors")} {ex.Message}");
                 }
                 else
                 {
-                    Console.WriteLine($"Программа не найдена! {ex.Message}");
+                    Console.WriteLine($"{MyIni.Read("PLUSandMINUSandCLOCKprogrammUnFound", "errors")} {ex.Message}");
                 }
             }
         }
 
         private static void smtp()
         {
+            var MyIni = new INI("themes.ini");
             try
             {
                 Console.Write("Введите имя: ");
@@ -305,6 +333,7 @@ namespace MultiTerminal
 
         private static void help()
         {
+            var MyIni = new INI("themes.ini");
             Console.WriteLine(@"Справка команд | HELP:
  clock - Часы
  plus (arg1) (arg2) - Сумма чисел
