@@ -1,5 +1,6 @@
 # MultiTerminal
-Эта страница с исходным кодом MultiTerminal
+Эта страница с исходным кодом MultiTerminal.
+MultiTerminal - это терминал со своими плюшками и проблемами :D.
 
 # Получение проекта в VisualStudio
 ![image](https://user-images.githubusercontent.com/68951929/212551923-746cc1a4-84bb-4ffc-a467-79536b2850a5.png)
@@ -23,9 +24,9 @@
 
 
 # Запуск
-Для запуска .net проектов в решении, требуется минимальная версия .net FrameWork 4.8 : https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48
+Для запуска .net проектов в решении, требуется минимальная версия .net FrameWork 4.8.1 и .Net Framework 4.0 (Для поддержки Windows XP)
 
-Для запуска C++ проектов в решении, требуется Visual C++ Redistributable : https://www.comss.ru/page.php?id=6271./
+Для запуска C++ проектов в решении, требуется Visual C++ Redistributable
 
 Запуск проекта:
 ![image](https://user-images.githubusercontent.com/68951929/212356123-c4f390f3-d5a8-4c32-8a6c-fcd747d37e4b.png)
