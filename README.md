@@ -1,5 +1,6 @@
 # MultiTerminal
 Эта страница с исходным кодом MultiTerminal.
+
 MultiTerminal - это терминал со своими плюшками и проблемами :D.
 
 # Получение проекта в VisualStudio
