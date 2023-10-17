@@ -3,6 +3,12 @@
 
 MultiTerminal - это терминал со своими плюшками и проблемами :D.
 
+# Требования к MultiTerminal
+В текущей версии исходного кода, требуются следующие компоненты:
+- Visual Studio 2019 (не больше не меньше)
+- .Net Framework 4.8.2
+- .Net Framework 4.0 (Для MTXP)
+
 # Получение проекта в VisualStudio
 ![image](https://user-images.githubusercontent.com/68951929/212551923-746cc1a4-84bb-4ffc-a467-79536b2850a5.png)
 
@@ -12,7 +18,7 @@ MultiTerminal - это терминал со своими плюшками и п
 
 После нажимаем на кнопку "Копировать". (указ. 2) (Метка 1)
 
-Запускаем VisualStudio (В лучшем случаее версию 2022)
+Запускаем VisualStudio (Только версию 2019 года! На скриншоте VS2022 которая использовалась для старой версии MT)
 ![image](https://user-images.githubusercontent.com/68951929/212552093-e0822eba-3483-4524-8a85-4cc56e73a115.png)
 
 Нажимаем на кнопку "Клонирование репозитория".
@@ -25,10 +31,6 @@ MultiTerminal - это терминал со своими плюшками и п
 
 
 # Запуск
-Для запуска .net проектов в решении, требуется минимальная версия .net Framework 4.8.1 и .Net Framework 4.0 (Для поддержки Windows XP)
-
-Для запуска C++ проектов в решении, требуется Visual C++ Redistributable
-
 Запуск проекта:
 ![image](https://user-images.githubusercontent.com/68951929/212356123-c4f390f3-d5a8-4c32-8a6c-fcd747d37e4b.png)
 
