@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NU_testProject
 {
@@ -10,9 +6,7 @@ namespace NU_testProject
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"Hello, {Environment.UserName}!");
-            Console.ReadLine();
-            Environment.Exit(0);
+            //Sorry, but this is an internal testing project. Nothing will be located here :D
 
         }
     }
