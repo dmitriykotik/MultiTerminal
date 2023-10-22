@@ -73,7 +73,7 @@ namespace MultiTerminal
             Console.Title = $"{Environment.UserName}@{Environment.MachineName}";
             Console.WriteLine($@"{Company} {Product} [Version {Version}/{Revision}]
 (c) Корпорация {CompanyOtherLanguage}, 2019.
-ВНИМАНИЕ! Терминал предназначен для Windows XP, поэтому некоторые функции могут не работать.");
+ВНИМАНИЕ! Терминал предназначен для Windows XP, поэтому некоторые функции из обычного терминала могут не работать.");
             /*
             try
             {

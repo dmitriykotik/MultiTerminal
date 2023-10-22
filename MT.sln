@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33815.320
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34114.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal", "MultiTerminal\MultiTerminal.csproj", "{40865DC8-82A7-4C51-87F4-6DEDB145DBCA}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminalXP", "MultiTerminalXP\MultiTerminalXP.csproj", "{639DDB7B-A201-4DC4-8AF2-01F09CAAFE32}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addons_XP_MusicBox", "addons_XP_MusicBox\addons_XP_MusicBox.csproj", "{12514452-9844-455D-AD53-410B43559FCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTPackagesCreator", "MTPackagesCreator\MTPackagesCreator.csproj", "{9B58692E-1987-4209-8810-501C9E1CE260}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{12514452-9844-455D-AD53-410B43559FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12514452-9844-455D-AD53-410B43559FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12514452-9844-455D-AD53-410B43559FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B58692E-1987-4209-8810-501C9E1CE260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B58692E-1987-4209-8810-501C9E1CE260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B58692E-1987-4209-8810-501C9E1CE260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B58692E-1987-4209-8810-501C9E1CE260}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
