@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+	<DebugSymbols>false</DebugSymbols>
+	<DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiTerminal.Logger\MultiTerminal.Logger.csproj" />
+    <ProjectReference Include="..\MultiTerminal.Output\MultiTerminal.Output.csproj" />
+  </ItemGroup>
+
+</Project>
