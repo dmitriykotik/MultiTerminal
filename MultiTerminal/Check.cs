@@ -44,6 +44,10 @@ Are you sure you want to continue running? (y/n)", ConsoleColor.Yellow, null);
                 return true;
             }
 
+            #if DEBUG
+            return true;
+            #endif
+
             bool allConfirmed = true;
 
             foreach (var file in Directory.GetFiles(Environment.CurrentDirectory))
