@@ -9,6 +9,19 @@ namespace MultiTerminal
 
         }
 
+        internal static void ChangeUserNameColor(string colorArg)
+        {
+            if (Enum.TryParse<UserNameColor>(colorArg, true, out var color))
+            {
+                CMDGenerator.currentUserNameColor = color;
+                output.WriteLine($"User name color changed to {color}");
+            }
+            else
+            {
+                output.WriteLine("Unknown color. Available colors: Red, Green, Blue, Yellow, Cyan, Magenta, Default");
+            }
+        }
+
         internal static void Exit()
         {
             stop.Push(0);
