@@ -8,6 +8,17 @@ namespace MultiTerminal
         {
             commands.RegisterCommand("help", Commands.Help);
 
+            commands.RegisterCommand("setusercolor", Args =>
+            {
+                if (Args.Length != 1)
+                {
+                    Console.WriteLine("Usage: setusercolor <color>");
+                    return;
+                }
+
+                Commands.ChangeUserNameColor(Args[0]);
+            });
+
             commands.RegisterCommand("exit", (Args) => Commands.Exit());
         }
 
