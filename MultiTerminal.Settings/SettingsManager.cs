@@ -228,6 +228,10 @@ namespace MultiTerminal.Settings
             {
                 "C:\\"
             },
+            Variables = new()
+            {
+                { "mtdirectory", Environment.CurrentDirectory },
+            },
             Motd = "null",
             SkipHashCheck = false
         };

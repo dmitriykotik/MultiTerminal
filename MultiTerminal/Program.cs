@@ -74,11 +74,10 @@ namespace MultiTerminal
                 output.Write(prefix);
                 var command = input.ReadLine();
                 if (string.IsNullOrEmpty(command)) continue;
-                var final = DefaultArguments.SplitArgs(command);
 
-                if (!commands.ExecuteCommand(final[0]))
+                if (!commands.ExecuteCommand(command))
                 {
-                    CommandNotFound(final);
+                    CommandNotFound(DefaultArguments.SplitArgs(command));
                 }
             }
         }

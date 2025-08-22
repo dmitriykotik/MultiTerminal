@@ -10,26 +10,37 @@
         /// Продукт
         /// </summary>
         public required Product Product { get; set; }
+
         /// <summary>
         /// Отключить предупреждения о несовместимости
         /// </summary>
         public bool disableWarningCompatibility { get; set; }
+
         /// <summary>
         /// Игнорировать новые версии
         /// </summary>
         public bool ignoreNewVersions { get; set; }
+
         /// <summary>
         /// SMBIOS
         /// </summary>
         public required SMBIOS SMBIOS { get; set; }
+
         /// <summary>
-        /// Paths
+        /// Пути к папкам
         /// </summary>
         public required List<string> Paths { get; set; } 
+
+        /// <summary>
+        /// Переменные
+        /// </summary>
+        public required Dictionary<string, string> Variables { get; set; }
+
         /// <summary>
         /// Сообщение при входе
         /// </summary>
         public required string Motd { get; set; }
+
         /// <summary>
         /// Пропуск проверки хэшей
         /// </summary>
