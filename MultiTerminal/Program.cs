@@ -62,16 +62,15 @@ namespace MultiTerminal
 
             while (true)
             {
-                var (userName, hostName, displayDir) = CMDGenerator.genPrefix();
                 var perm = PermissionsManager.Get();
                 string titlePrefix = "";
                 if (perm == Permissions.SuperAdmin)
                     titlePrefix = "WinPE: ";
                 else if (perm == Permissions.Admin)
                     titlePrefix = "Admin: ";
-                Console.Title = titlePrefix + $"{userName}@{hostName}:{displayDir}$ ";
+                Console.Title = titlePrefix + CMDGenerator.GenPrefix();
 
-                WriteCDM(userName, hostName, displayDir);
+                CMDGenerator.GenPrefix(true);
                 var command = input.ReadLine();
                 if (string.IsNullOrEmpty(command)) continue;
 
@@ -88,14 +87,6 @@ namespace MultiTerminal
 operable program or batch file.", ConsoleColor.Red, null);
         }
 
-        internal static void WriteCDM(string userName, string hostName, string displayDir)
-        {
-            Console.ForegroundColor = CMDGenerator.GetUserNameColor();
-            output.Write(userName);
-            Console.ResetColor();
-
-            output.Write($"@{hostName}:{displayDir}$ ");
-        }
 #if DEBUG
         private static void DebugMode()
         {

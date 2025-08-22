@@ -1,36 +1,11 @@
 ﻿using MultiTerminal.FileSystem;
+using static MultiTerminal.InternalVars;
 
 namespace MultiTerminal
 {
-    internal enum UserNameColor
-    {
-        White,
-        Red,
-        Green,
-        Blue,
-        Yellow,
-        Cyan,
-        Magenta
-    }
-
     internal class CMDGenerator
     {
-        public static UserNameColor currentUserNameColor = UserNameColor.Red;
-        internal static ConsoleColor GetUserNameColor()
-        {
-            return currentUserNameColor switch
-            {
-                UserNameColor.Red => ConsoleColor.Red,
-                UserNameColor.Green => ConsoleColor.Green,
-                UserNameColor.Blue => ConsoleColor.Blue,
-                UserNameColor.Yellow => ConsoleColor.Yellow,
-                UserNameColor.Cyan => ConsoleColor.Cyan,
-                UserNameColor.Magenta => ConsoleColor.Magenta,
-                _ => Console.ForegroundColor
-            };
-        }
-
-        internal static (string userName, string hostName, string displayDir) genPrefix()
+        internal static string GenPrefix(bool WriteToConsole = false)
         {
             Basic basic = new();
             string displayDir;
@@ -41,7 +16,17 @@ namespace MultiTerminal
             else
                 displayDir = basic.GetCurrent();
 
-            return (basic.GetUsername(), basic.GetHostname(), displayDir);
+            if (WriteToConsole)
+            {
+                output.Write(basic.GetUsername(), settingsFile.UserColor);
+                output.Write("@");
+                output.Write(basic.GetHostname(), settingsFile.HostColor);
+                output.Write(":");
+                output.Write(displayDir, settingsFile.DirColor);
+                output.Write("$ ");
+            }
+
+            return $"{basic.GetUsername()}@{basic.GetHostname()}:{displayDir}$";
         }
     }
 }

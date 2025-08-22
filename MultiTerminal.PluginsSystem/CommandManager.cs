@@ -31,6 +31,27 @@ namespace MultiTerminal.PluginsSystem
         }
         #endregion
 
+        #region METHOD-VOID | RegisterCommand
+        /// <summary>
+        /// Регистрация алиасов
+        /// </summary>
+        /// <param name="aliases">Имя команды и её алиасов</param>
+        /// <param name="handler">Обработчик</param>
+        public void RegisterCommand(string[] aliases, Action<string[]> handler)
+        {
+            var output = new DefaultOutput();
+            foreach (var commandName in aliases)
+            {
+                if (!_commands.ContainsKey(commandName))
+                {
+                    _commands[commandName] = new Command(commandName, handler);
+                }
+                else
+                    output.WriteLine($"The command \"{commandName}\" is already registered.", ConsoleColor.Red, null);
+            }
+        }
+        #endregion
+
         #region METHOD-BOOL | ExecuteCommand
         /// <summary>
         /// Выполнение команд

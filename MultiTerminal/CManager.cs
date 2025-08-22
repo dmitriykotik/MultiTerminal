@@ -8,16 +8,11 @@ namespace MultiTerminal
         {
             commands.RegisterCommand("help", Commands.Help);
 
-            commands.RegisterCommand("setusercolor", Args =>
-            {
-                if (Args.Length != 1)
-                {
-                    Console.WriteLine("Usage: setusercolor <color>");
-                    return;
-                }
+            commands.RegisterCommand("setusercolor", (Args) => Commands.ChangeUserColor(Args, 0));
+            commands.RegisterCommand("sethostcolor", (Args) => Commands.ChangeUserColor(Args, 1));
+            commands.RegisterCommand("setdircolor", (Args) => Commands.ChangeUserColor(Args, 2));
 
-                Commands.ChangeUserNameColor(Args[0]);
-            });
+            commands.RegisterCommand(["cls", "clear"], (Args) => Commands.Clear());
 
             commands.RegisterCommand("exit", (Args) => Commands.Exit());
         }

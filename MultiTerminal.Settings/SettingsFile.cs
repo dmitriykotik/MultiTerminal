@@ -45,6 +45,21 @@
         /// Пропуск проверки хэшей
         /// </summary>
         public bool SkipHashCheck { get; set; }
+
+        /// <summary>
+        /// Цвет имени пользователя (Терминал)
+        /// </summary>
+        public required ConsoleColor UserColor { get; set; }
+
+        /// <summary>
+        /// Цвет названия компьютера (Терминал)
+        /// </summary>
+        public required ConsoleColor HostColor { get; set; }
+
+        /// <summary>
+        /// Цвет директории (Терминал)
+        /// </summary>
+        public required ConsoleColor DirColor { get; set; }
     }
     #endregion
 }

@@ -78,6 +78,7 @@ namespace MultiTerminal.Settings
         /// </summary>
         public void Save()
         {
+            FileManager.File.Delete(_path);
             var options = new JsonSerializerOptions { WriteIndented = true };
             FileManager.File.WriteAllText(_path, JsonSerializer.Serialize(_file, options));
         }
@@ -180,6 +181,99 @@ namespace MultiTerminal.Settings
         }
         #endregion
 
+        #region METHOD-ConsoleColor | GetUserColor
+        /// <summary>
+        /// Получить цвет текста имени пользователя
+        /// </summary>
+        /// <returns>Цвет</returns>
+        public ConsoleColor GetUserColor()
+        {
+            if (_file == null)
+                return ConsoleColor.Red;
+
+            return _file.UserColor;
+        }
+        #endregion
+
+        #region METHOD-ConsoleColor | GetHostColor
+        /// <summary>
+        /// Получить цвет текста названия компьютера
+        /// </summary>
+        /// <returns>Цвет</returns>
+        public ConsoleColor GetHostColor()
+        {
+            if (_file == null)
+                return ConsoleColor.Red;
+
+            return _file.HostColor;
+        }
+        #endregion
+
+        #region METHOD-ConsoleColor | GetDirColor
+        /// <summary>
+        /// Получить цвет текста директорий
+        /// </summary>
+        /// <returns>Цвет</returns>
+        public ConsoleColor GetDirColor()
+        {
+            if (_file == null)
+                return ConsoleColor.Blue;
+
+            return _file.DirColor;
+        }
+        #endregion
+
+        #region METHOD-BOOL | SetUserColor
+        /// <summary>
+        /// Установить цвет текста имени пользователя
+        /// </summary>
+        /// <param name="Color">Цвет</param>
+        /// <returns>true - Если операция была выполнена, иначе false</returns>
+        public bool SetUserColor(ConsoleColor Color)
+        {
+            if (_file == null)
+                return false;
+
+            _file.UserColor = Color;
+            Save();
+            return true;
+        }
+        #endregion
+
+        #region METHOD-BOOL | SetHostColor
+        /// <summary>
+        /// Установить цвет текста названия компьютера
+        /// </summary>
+        /// <param name="Color">Цвет</param>
+        /// <returns>true - Если операция была выполнена, иначе false</returns>
+        public bool SetHostColor(ConsoleColor Color)
+        {
+            if (_file == null)
+                return false;
+
+            _file.HostColor = Color;
+            Save();
+            return true;
+        }
+        #endregion
+
+        #region METHOD-BOOL | SetDirColor
+        /// <summary>
+        /// Установить цвет текста директорий
+        /// </summary>
+        /// <param name="Color">Цвет</param>
+        /// <returns>true - Если операция была выполнена, иначе false</returns>
+        public bool SetDirColor(ConsoleColor Color)
+        {
+            if (_file == null)
+                return false;
+
+            _file.DirColor = Color;
+            Save();
+            return true;
+        }
+        #endregion
+
         #region METHOD-VOID | Update
         /// <summary>
         /// Обновлнение конфигурационного файла
@@ -226,14 +320,17 @@ namespace MultiTerminal.Settings
             },
             Paths = new()
             {
-                "C:\\"
+                Environment.SystemDirectory
             },
             Variables = new()
             {
                 { "mtdirectory", Environment.CurrentDirectory },
             },
             Motd = "null",
-            SkipHashCheck = false
+            SkipHashCheck = false,
+            UserColor = ConsoleColor.Red,
+            HostColor = ConsoleColor.Red,
+            DirColor = ConsoleColor.Blue
         };
         #endregion
     }
