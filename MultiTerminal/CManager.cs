@@ -14,6 +14,9 @@ namespace MultiTerminal
 
             commands.RegisterCommand(["cls", "clear"], (Args) => Commands.Clear());
 
+            commands.RegisterCommand("passgen", Commands.PasswordGenerator);
+            commands.RegisterCommand("passmgr", Commands.PasswordManager);
+
             commands.RegisterCommand("exit", (Args) => Commands.Exit());
         }
 

@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal.FileSystem", "MultiTerminal.FileSystem\MultiTerminal.FileSystem.csproj", "{2A9A8589-AD94-4633-AC6C-4D41FFCEFEF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal.PasswordManager", "MultiTerminal.PasswordManager\MultiTerminal.PasswordManager.csproj", "{5DC1AA88-EC22-4742-B496-DF642708DDD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -237,6 +239,18 @@ Global
 		{2A9A8589-AD94-4633-AC6C-4D41FFCEFEF5}.Release|x64.Build.0 = Release|Any CPU
 		{2A9A8589-AD94-4633-AC6C-4D41FFCEFEF5}.Release|x86.ActiveCfg = Release|Any CPU
 		{2A9A8589-AD94-4633-AC6C-4D41FFCEFEF5}.Release|x86.Build.0 = Release|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Debug|x64.Build.0 = Debug|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Debug|x86.Build.0 = Debug|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x64.ActiveCfg = Release|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x64.Build.0 = Release|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x86.ActiveCfg = Release|Any CPU
+		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

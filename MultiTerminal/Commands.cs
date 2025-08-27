@@ -1,4 +1,9 @@
-﻿using static MultiTerminal.InternalVars;
+﻿using MultiTerminal.Arguments;
+using System.Security.Cryptography;
+using System.Text;
+using static MultiTerminal.InternalVars;
+using Terminal.Gui;
+using MultiTerminal.PasswordManager;
 
 namespace MultiTerminal
 {
@@ -67,5 +72,9 @@ namespace MultiTerminal
             log.Write(Logger.LogType.Debug, $"clear: Console cleared");
             Console.Clear();
         }
+
+        internal static void PasswordManager(string[] Args) => passMgr.Run();
+
+        internal static void PasswordGenerator(string[] Args) => PassGenerator.Run(Args, log);
     }
 }

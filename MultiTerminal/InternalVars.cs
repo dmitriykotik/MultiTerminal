@@ -53,6 +53,10 @@ namespace MultiTerminal
         internal static Hashes hashesManager = new("all.hash", "cfg");
         internal static HashFile hashes = hashesManager.Get();
         #endregion
+
+        #region Password Manager
+        internal static PasswordManager.PassManager passMgr = new PasswordManager.PassManager("cfg\\passwords.pass", log);
+        #endregion
     }
     #endregion
 }

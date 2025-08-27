@@ -30,6 +30,7 @@
     <ProjectReference Include="..\MultiTerminal.Input\MultiTerminal.Input.csproj" />
     <ProjectReference Include="..\MultiTerminal.Logger\MultiTerminal.Logger.csproj" />
     <ProjectReference Include="..\MultiTerminal.Output\MultiTerminal.Output.csproj" />
+    <ProjectReference Include="..\MultiTerminal.PasswordManager\MultiTerminal.PasswordManager.csproj" />
     <ProjectReference Include="..\MultiTerminal.PluginsSystem\MultiTerminal.PluginsSystem.csproj" />
     <ProjectReference Include="..\MultiTerminal.Plugin\MultiTerminal.Plugin.csproj" />
     <ProjectReference Include="..\MultiTerminal.Settings\MultiTerminal.Settings.csproj" />
