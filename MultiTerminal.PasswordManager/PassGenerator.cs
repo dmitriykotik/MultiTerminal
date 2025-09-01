@@ -1,12 +1,8 @@
 ﻿using MultiTerminal.Logger;
 using MultiTerminal.Output;
 using MultiTerminal.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using MultiTerminal.Arguments;
 
 namespace MultiTerminal.PasswordManager
