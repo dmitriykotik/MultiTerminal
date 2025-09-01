@@ -1,6 +1,4 @@
 ﻿using MultiAPI;
-using MultiTerminal.Settings;
-using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace MultiTerminal

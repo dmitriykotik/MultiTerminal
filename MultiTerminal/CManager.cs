@@ -1,7 +1,4 @@
-﻿using Neon.WinTTY;
-using MultiTerminal.Logger;
-using static MultiTerminal.InternalVars;
-using System.Diagnostics;
+﻿using static MultiTerminal.InternalVars;
 
 namespace MultiTerminal
 {
