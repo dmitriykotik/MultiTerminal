@@ -20,7 +20,7 @@ namespace MultiTerminal.Logger
         {
             string prefix = "";
             if (enablePrefix)
-                prefix = DateTime.Now.ToString("yyyy-MM-dd-HH-mm") + "-";
+                prefix = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-";
             _File = prefix + File;
         }
 
@@ -37,7 +37,7 @@ namespace MultiTerminal.Logger
 
             string prefix = "";
             if (enablePrefix)
-                prefix = DateTime.Now.ToString("yyyy-MM-dd-HH-mm") + "-";
+                prefix = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-";
 
             _File = Folder + "\\" + prefix + File;
         }

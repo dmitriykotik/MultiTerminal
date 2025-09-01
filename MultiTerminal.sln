@@ -37,6 +37,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal.FileSystem", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal.PasswordManager", "MultiTerminal.PasswordManager\MultiTerminal.PasswordManager.csproj", "{5DC1AA88-EC22-4742-B496-DF642708DDD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal.Process", "MultiTerminal.Process\MultiTerminal.Process.csproj", "{0515D24A-90CA-4B1D-97A5-83B735A91EEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTerminal.Packages.PasswordManager", "MultiTerminal.Packages.PasswordManager\MultiTerminal.Packages.PasswordManager.csproj", "{EE52015A-D408-48C8-A5EE-C604C4990D6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +255,30 @@ Global
 		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x64.Build.0 = Release|Any CPU
 		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x86.ActiveCfg = Release|Any CPU
 		{5DC1AA88-EC22-4742-B496-DF642708DDD4}.Release|x86.Build.0 = Release|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Debug|x64.Build.0 = Debug|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Debug|x86.Build.0 = Debug|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Release|x64.ActiveCfg = Release|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Release|x64.Build.0 = Release|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Release|x86.ActiveCfg = Release|Any CPU
+		{0515D24A-90CA-4B1D-97A5-83B735A91EEE}.Release|x86.Build.0 = Release|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Debug|x64.Build.0 = Debug|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Debug|x86.Build.0 = Debug|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Release|x64.ActiveCfg = Release|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Release|x64.Build.0 = Release|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Release|x86.ActiveCfg = Release|Any CPU
+		{EE52015A-D408-48C8-A5EE-C604C4990D6C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,6 @@
-﻿using MultiTerminal.Arguments;
-using System.Security.Cryptography;
-using System.Text;
-using static MultiTerminal.InternalVars;
-using Terminal.Gui;
+﻿using static MultiTerminal.InternalVars;
 using MultiTerminal.PasswordManager;
+using MultiTerminal.Arguments;
 
 namespace MultiTerminal
 {
@@ -73,8 +70,28 @@ namespace MultiTerminal
             Console.Clear();
         }
 
-        internal static void PasswordManager(string[] Args) => passMgr.Run();
-
         internal static void PasswordGenerator(string[] Args) => PassGenerator.Run(Args, log);
+
+        internal static void PasswordManager(string[] Args)
+        {
+            string input;
+            if (Args.Length == 0)
+                input = "passmgr.exe passwords.pass cfg";
+            else if (Args.Length == 1)
+                input = "passmgr.exe " + DefaultArguments.SplitArgs(string.Join(" ", Args))[0];
+            else if (Args.Length == 2)
+                input = "passmgr.exe " + DefaultArguments.SplitArgs(string.Join(" ", Args))[0] + " " + DefaultArguments.SplitArgs(string.Join(" ", Args))[1];
+            else
+            {
+                output.WriteLine("PassMgr: Use: passmgr [File] [Folder]", ConsoleColor.Red);
+                return;
+            }
+
+            if (!Launch.LaunchProgram(input, out input))
+            {
+                log.Write(Logger.LogType.Error, "PassMgr: Unknown error");
+                output.WriteLine("PassMgr: Unknown error, maybe file not found.", ConsoleColor.Red);
+            }
+        }
     }
 }

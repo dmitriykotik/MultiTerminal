@@ -1,4 +1,7 @@
-﻿using static MultiTerminal.InternalVars;
+﻿using Neon.WinTTY;
+using MultiTerminal.Logger;
+using static MultiTerminal.InternalVars;
+using System.Diagnostics;
 
 namespace MultiTerminal
 {
@@ -19,6 +22,8 @@ namespace MultiTerminal
 
             commands.RegisterCommand("exit", (Args) => Commands.Exit());
         }
+
+
 
         internal static void loadPlugins() => plugins.LoadPlugins(commands);
 

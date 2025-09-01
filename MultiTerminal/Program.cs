@@ -50,6 +50,7 @@ namespace MultiTerminal
 
         private static void MainWithoutArgs()
         {
+            Console.CancelKeyPress += (s, e) => { output.WriteLine(); e.Cancel = true; };
             log.Write(LogType.Debug, "Launching without args...");
             output.WriteLine($"Welcome to {settingsFile.Product.Name}!", ConsoleColor.Black, ConsoleColor.Gray);
 
@@ -76,15 +77,10 @@ namespace MultiTerminal
 
                 if (!commands.ExecuteCommand(command))
                 {
-                    CommandNotFound(DefaultArguments.SplitArgs(command));
+                    if (!Launch.LaunchProgram(command, out command))
+                        Launch.CommandNotFound(DefaultArguments.SplitArgs(command)[0]);
                 }
             }
-        }
-
-        private static void CommandNotFound(string[] input)
-        {
-            output.WriteLine($@"'{input[0]}' is not recognized as an internal or external command,
-operable program or batch file.", ConsoleColor.Red, null);
         }
 
 #if DEBUG

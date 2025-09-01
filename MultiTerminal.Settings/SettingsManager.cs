@@ -126,20 +126,36 @@ namespace MultiTerminal.Settings
         /// Проверка на существование файла в папках переменной
         /// </summary>
         /// <param name="file">Файл</param>
+        /// <param name="includeSystemPath">Использовать системную переменную PATH?</param>
         /// <returns>true - Если папка существует, иначе false</returns>
-        public bool ContainsFilePath(string file)
+        public bool ContainsFilePath(string file, bool includeSystemPath = true)
         {
             if (_file == null)
                 return false;
 
+            string? SystemPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (includeSystemPath && SystemPath != null)
+            {
+                foreach (var dir in SystemPath.Split(";"))
+                {
+                    if (Directory.Exists(dir))
+                    {
+                        if (File.Exists(dir + "\\" + file) || File.Exists(dir + "\\" + file + ".exe"))
+                            return true;
+                    }
+                }
+            }
+
             foreach (var dir in _file.Paths)
             {
-                if (FileManager.Directory.Exists(dir))
+                if (Directory.Exists(dir))
                 {
-                    if (FileManager.File.Exists(dir + "\\" + file))
+                    if (File.Exists(dir + "\\" + file) || File.Exists(dir + "\\" + file + ".exe"))
                         return true;
                 }
             }
+
             return false;
         }
         #endregion
@@ -149,9 +165,15 @@ namespace MultiTerminal.Settings
         /// Проверка на существование папки в переменной
         /// </summary>
         /// <param name="folder">Папка</param>
+        /// <param name="includeSystemPath">Использовать системную переменную PATH?</param>
         /// <returns>true - Если папка существует в переменной, иначе false</returns>
-        public bool ContainsPath(string folder)
+        public bool ContainsPath(string folder, bool includeSystemPath = true)
         {
+            string? SystemPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (SystemPath != null && includeSystemPath && SystemPath.Split(";").Contains(folder))
+                return true;
+
             if (_file != null && _file.Paths.Contains(folder))
                 return true;
             return false;
@@ -163,18 +185,42 @@ namespace MultiTerminal.Settings
         /// Получение полного пути по файлу из папки в переменной
         /// </summary>
         /// <param name="file">Файл</param>
+        /// <param name="includeSystemPath">Использовать системную переменную PATH?</param>
         /// <returns>Строка, содержащая полный путь до файла, в противном случае значение null</returns>
-        public string? GetFilePath(string file)
+        public string? GetFilePath(string file, bool includeSystemPath = true)
         {
             if (!ContainsFilePath(file) || _file == null)
                 return null;
 
+            string? SystemPath = Environment.GetEnvironmentVariable("PATH");
+
+            if (includeSystemPath && SystemPath != null)
+            {
+                foreach (var dir in SystemPath.Split(";"))
+                {
+                    if (Directory.Exists(dir))
+                    {
+                        string file1 = dir + "\\" + file;
+                        string file2 = dir + "\\" + file + ".exe";
+                        if (File.Exists(file1))
+                            return Path.GetFullPath(file1);
+                        else if (File.Exists(file2))
+                            return Path.GetFullPath(file2);
+                    }
+                }
+            }
+
             foreach (var dir in _file.Paths)
             {
-                if (FileManager.Directory.Exists(dir))
+                Console.WriteLine(dir);
+                if (Directory.Exists(dir))
                 {
-                    if (FileManager.File.Exists(file))
-                        return Path.GetFullPath(dir + "\\" + file);
+                    string file1 = dir + "\\" + file;
+                    string file2 = dir + "\\" + file + ".exe";
+                    if (File.Exists(file1))
+                        return Path.GetFullPath(file1);
+                    else if (File.Exists(file2))
+                        return Path.GetFullPath(file2);
                 }
             }
             return null;
