@@ -1,5 +1,4 @@
-﻿using MultiTerminal.FileSystem;
-using static MultiTerminal.InternalVars;
+﻿using static MultiTerminal.InternalVars;
 
 namespace MultiTerminal
 {
@@ -7,26 +6,25 @@ namespace MultiTerminal
     {
         internal static string GenPrefix(bool WriteToConsole = false)
         {
-            Basic basic = new();
             string displayDir;
-            if (basic.GetCurrent() == basic.GetHome())
+            if (fileSystem.GetCurrent() == fileSystem.GetHome())
                 displayDir = "~";
-            else if (basic.GetCurrent().StartsWith(basic.GetHome() + Path.DirectorySeparatorChar))
-                displayDir = "~" + basic.GetCurrent().Substring(basic.GetHome().Length);
+            else if (fileSystem.GetCurrent().StartsWith(fileSystem.GetHome() + Path.DirectorySeparatorChar))
+                displayDir = "~" + fileSystem.GetCurrent().Substring(fileSystem.GetHome().Length);
             else
-                displayDir = basic.GetCurrent();
+                displayDir = fileSystem.GetCurrent();
 
             if (WriteToConsole)
             {
-                output.Write(basic.GetUsername(), settingsFile.UserColor);
+                output.Write(fileSystem.GetUsername(), settingsFile.UserColor);
                 output.Write("@");
-                output.Write(basic.GetHostname(), settingsFile.HostColor);
+                output.Write(fileSystem.GetHostname(), settingsFile.HostColor);
                 output.Write(":");
                 output.Write(displayDir, settingsFile.DirColor);
                 output.Write("$ ");
             }
 
-            return $"{basic.GetUsername()}@{basic.GetHostname()}:{displayDir}$";
+            return $"{fileSystem.GetUsername()}@{fileSystem.GetHostname()}:{displayDir}$";
         }
     }
 }

@@ -36,6 +36,10 @@ namespace MultiTerminal
                     return false;
                 }
             }
+            else if (File.Exists(fileSystem.GetCurrent() + "\\" + Args[0]))
+                p = new(fileSystem.GetCurrent() + "\\" + Args[0], string.Join(" ", DefaultArguments.RFArg(Args)));
+            else if (File.Exists(fileSystem.GetCurrent() + "\\" + Args[0] + ".exe"))
+                p = new(fileSystem.GetCurrent() + "\\" + Args[0] + ".exe", string.Join(" ", DefaultArguments.RFArg(Args)));
             else
             {
                 log.Write(LogType.Error, Args[0] + ": File not exists");

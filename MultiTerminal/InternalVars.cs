@@ -1,10 +1,11 @@
 using MultiAPI;
+using MultiTerminal.ExitFunc;
+using MultiTerminal.FileSystem;
+using MultiTerminal.Input;
 using MultiTerminal.Logger;
 using MultiTerminal.Output;
-using MultiTerminal.Input;
-using MultiTerminal.ExitFunc;
-using MultiTerminal.Settings;
 using MultiTerminal.PluginsSystem;
+using MultiTerminal.Settings;
 
 namespace MultiTerminal
 {
@@ -56,6 +57,10 @@ namespace MultiTerminal
 
         #region Password Manager
         internal static PasswordManager.PassManager passMgr = new PasswordManager.PassManager("cfg\\passwords.pass", log);
+        #endregion
+
+        #region File System
+        internal static Basic fileSystem = new();
         #endregion
     }
     #endregion

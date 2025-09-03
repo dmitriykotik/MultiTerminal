@@ -77,31 +77,163 @@ namespace MultiTerminal.FileSystem
 
         public string Pwd() => _current;
 
-        public void Ls(string path = ".", bool showHidden = false, bool longList = false, bool human = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="longListing"></param>
+        /// <param name="all"></param>
+        /// <param name="human"></param>
+        /// <param name="recursive"></param>
+        /// <param name="reverse"></param>
+        /// <param name="pattern"></param>
+        /// <param name="dirStyle"></param>
+        /// <param name="color"></param>
+        public void List(string? path = null,
+                            bool longListing = false,
+                            bool all = false,
+                            bool human = false,
+                            bool recursive = false,
+                            bool reverse = false,
+                            string pattern = "*",
+                            bool dirStyle = false,
+                            bool color = true)
         {
             DefaultOutput output = new();
-            if (!Directory.Exists(path))
+            string dirPath = Path.GetFullPath(path ?? _current);
+
+            if (!Directory.Exists(dirPath))
             {
-                output.WriteLine($"{path}: No such directory");
+                output.WriteLine($"ls: cannot access '{dirPath}': No such directory", ConsoleColor.Red);
                 return;
             }
 
-            var entries = Directory.GetFileSystemEntries(path)
-                .Select(f => new FileInfo(f));
-
-            if (!showHidden)
-                entries = entries.Where(f => !IsHidden(f));
-
-            if (longList)
+            try
             {
-                int sizeWidth = entries.Any() ? entries.Max(e => FormatSize(e.Length, human).Length) : 0;
-                foreach (var entry in entries)
-                    PrintLong(entry, sizeWidth, human);
+                if (dirStyle)
+                    output.WriteLine($" Directory of {dirPath}");
+
+                string[] entries;
+                try { entries = Directory.GetFileSystemEntries(dirPath, pattern).OrderBy(x => x, StringComparer.InvariantCultureIgnoreCase).ToArray(); }
+                catch { entries = Array.Empty<string>(); }
+
+                if (!all)
+                    entries = entries.Where(e => !Path.GetFileName(e).StartsWith(".") && (File.GetAttributes(e) & FileAttributes.Hidden) == 0).ToArray();
+
+                if (reverse)
+                    entries = entries.Reverse().ToArray();
+
+                int sizeWidth = 0;
+                if (longListing)
+                {
+                    foreach (var e in entries)
+                    {
+                        if (Directory.Exists(e))
+                            sizeWidth = Math.Max(sizeWidth, "<DIR>".Length);
+                        else
+                        {
+                            try
+                            {
+                                long len = new FileInfo(e).Length;
+                                string s = FormatSize(len, human);
+                                sizeWidth = Math.Max(sizeWidth, s.Length);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
+                long totalFiles = 0;
+                long totalBytes = 0;
+                int totalDirs = 0;
+
+                foreach (var e in entries)
+                {
+                    bool isDir = Directory.Exists(e);
+                    string name = Path.GetFileName(e);
+
+                    if (longListing)
+                    {
+                        FileAttributes attrs;
+                        try { attrs = File.GetAttributes(e); }
+                        catch { attrs = 0; }
+
+                        bool canWrite = (attrs & FileAttributes.ReadOnly) == 0;
+                        string perms = (isDir ? "d" : "-") + (canWrite ? "rw" : "r-") + "x------";
+
+                        int links = 1;
+                        string owner = "-";
+                        string group = "-";
+
+                        string sizeStr;
+                        if (isDir)
+                            sizeStr = "<DIR>".PadLeft(sizeWidth);
+                        else
+                        {
+                            try
+                            {
+                                long len = new FileInfo(e).Length;
+                                totalBytes += len;
+                                sizeStr = FormatSize(len, human).PadLeft(sizeWidth);
+                            }
+                            catch { sizeStr = "0".PadLeft(sizeWidth); }
+                        }
+
+                        string mtime;
+                        try { mtime = File.GetLastWriteTime(e).ToString("MMM dd HH:mm", CultureInfo.InvariantCulture); }
+                        catch { mtime = "???"; }
+
+                        output.Write($"{perms} {links,3} {owner,8} {group,8} {sizeStr} {mtime} ");
+                        if (color)
+                        {
+                            var col = GetColorForEntry(e);
+                            output.Write(name, col, null);
+                        }
+                        else
+                            output.Write(name);
+                        output.WriteLine("");
+                    }
+                    else
+                    {
+                        if (color)
+                        {
+                            var col = GetColorForEntry(e);
+                            output.Write(name, col, null);
+                        }
+                        else
+                            output.Write(name);
+                        output.Write("  ");
+                    }
+
+                    if (isDir) totalDirs++; else totalFiles++;
+                }
+
+                if (!longListing)
+                    output.WriteLine("");
+
+                if (dirStyle)
+                {
+                    output.WriteLine("");
+                    output.WriteLine($" {totalFiles} File(s) {FormatSize(totalBytes, false)} bytes");
+                    output.WriteLine($" {totalDirs} Dir(s)");
+                }
+
+                if (recursive)
+                {
+                    foreach (var d in entries.Where(e => Directory.Exists(e)))
+                    {
+                        output.WriteLine("");
+                        List(d, longListing, all, human, true, reverse, pattern, dirStyle: true, color: color);
+                    }
+                }
             }
-            else
+            catch (UnauthorizedAccessException)
             {
-                foreach (var entry in entries)
-                    PrintName(entry);
+                output.WriteLine($"ls: cannot open directory '{dirPath}': Permission denied", ConsoleColor.Red);
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine($"ls: error reading '{dirPath}': {ex.Message}", ConsoleColor.Red);
             }
         }
 
@@ -112,11 +244,20 @@ namespace MultiTerminal.FileSystem
             {
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    output.WriteLine("mkdir: missing operand");
+                    output.WriteLine("mkdir: missing operand", ConsoleColor.Red);
                     return false;
                 }
 
-                string fullPath = Path.GetFullPath(path);
+                if (path == "~")
+                    path = _home;
+                else if (path.StartsWith("~"))
+                    path = Path.Combine(_home, path.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                string fullPath;
+                if (Path.IsPathRooted(path))
+                    fullPath = Path.GetFullPath(path);
+                else
+                    fullPath = Path.GetFullPath(Path.Combine(_current, path));
 
                 if (Directory.Exists(fullPath))
                 {
@@ -124,7 +265,7 @@ namespace MultiTerminal.FileSystem
                         return true;
                     else
                     {
-                        output.WriteLine($"mkdir: cannot create directory '{path}': File exists");
+                        output.WriteLine($"mkdir: cannot create directory '{path}': File exists", ConsoleColor.Red);
                         return false;
                     }
                 }
@@ -136,7 +277,7 @@ namespace MultiTerminal.FileSystem
                     string? parent = Path.GetDirectoryName(fullPath);
                     if (parent == null || !Directory.Exists(parent))
                     {
-                        output.WriteLine($"mkdir: cannot create directory '{path}': No such file or directory");
+                        output.WriteLine($"mkdir: cannot create directory '{path}': No such file or directory", ConsoleColor.Red);
                         return false;
                     }
 
@@ -147,65 +288,113 @@ namespace MultiTerminal.FileSystem
             }
             catch (Exception ex)
             {
-                output.WriteLine($"mkdir: cannot create directory '{path}': {ex.Message}");
+                output.WriteLine($"mkdir: cannot create directory '{path}': {ex.Message}", ConsoleColor.Red);
                 return false;
             }
         }
 
+
         public void Touch(string path)
         {
+            DefaultOutput output = new();
             try
             {
-                string fullPath = Path.GetFullPath(path);
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    output.WriteLine("touch: missing file operand", ConsoleColor.Red);
+                    return;
+                }
+
+                if (path == "~")
+                    path = _home;
+                else if (path.StartsWith("~"))
+                    path = Path.Combine(_home, path.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                string fullPath = Path.IsPathRooted(path) ? Path.GetFullPath(path) : Path.GetFullPath(Path.Combine(_current, path));
+
+                string? parent = Path.GetDirectoryName(fullPath);
+                if (parent == null || !Directory.Exists(parent))
+                {
+                    output.WriteLine($"touch: cannot touch '{path}': No such file or directory", ConsoleColor.Red);
+                    return;
+                }
 
                 if (File.Exists(fullPath))
                 {
                     File.SetLastAccessTime(fullPath, DateTime.Now);
                     File.SetLastWriteTime(fullPath, DateTime.Now);
                 }
-                else 
-                    File.Create(fullPath).Close();
+                else
+                {
+                    using (File.Create(fullPath)) { }
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"touch: cannot touch '{path}': {ex.Message}");
+                output.WriteLine($"touch: cannot touch '{path}': {ex.Message}", ConsoleColor.Red);
             }
         }
 
+
         public void Rm(string path, bool recursive = false, bool force = false)
         {
+            DefaultOutput output = new();
+
             if (string.IsNullOrWhiteSpace(path))
             {
-                if (!force) Console.WriteLine("rm: missing operand");
+                if (!force) output.WriteLine("rm: missing operand", ConsoleColor.Red);
                 return;
             }
 
             try
             {
-                string baseDir = Directory.GetCurrentDirectory();
-
                 List<string> targets = new();
+
+                string ResolveToFull(string p)
+                {
+                    if (p == "~")
+                        p = _home;
+                    else if (p.StartsWith("~"))
+                        p = Path.Combine(_home, p.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                    return Path.IsPathRooted(p) ? Path.GetFullPath(p) : Path.GetFullPath(Path.Combine(_current, p));
+                }
 
                 if (path.Contains('*') || path.Contains('?'))
                 {
-                    string dir = Path.GetDirectoryName(path) ?? baseDir;
+                    string dirPart = Path.GetDirectoryName(path) ?? "";
                     string pattern = Path.GetFileName(path);
 
-                    var files = Directory.GetFiles(dir, pattern);
-                    var dirs = Directory.GetDirectories(dir, pattern);
+                    string dirResolved;
+                    if (string.IsNullOrEmpty(dirPart))
+                        dirResolved = _current;
+                    else
+                        dirResolved = ResolveToFull(dirPart);
 
-                    targets.AddRange(files);
-                    targets.AddRange(dirs);
+                    try
+                    {
+                        if (Directory.Exists(dirResolved))
+                        {
+                            try
+                            {
+                                var files = Directory.GetFiles(dirResolved, pattern);
+                                var dirs = Directory.GetDirectories(dirResolved, pattern);
+
+                                targets.AddRange(files);
+                                targets.AddRange(dirs);
+                            }
+                            catch { }
+                        }
+                    }
+                    catch { }
                 }
-                else
-                {
-                    targets.Add(Path.GetFullPath(path));
-                }
+                else 
+                    targets.Add(ResolveToFull(path));
 
                 if (targets.Count == 0)
                 {
                     if (!force)
-                        Console.WriteLine($"rm: cannot remove '{path}': No such file or directory");
+                        output.WriteLine($"rm: cannot remove '{path}': No such file or directory", ConsoleColor.Red);
                     return;
                 }
 
@@ -222,179 +411,497 @@ namespace MultiTerminal.FileSystem
                             else
                             {
                                 if (!force)
-                                    Console.WriteLine($"rm: cannot remove '{target}': Is a directory");
+                                    output.WriteLine($"rm: cannot remove '{target}': Is a directory", ConsoleColor.Red);
                             }
                         }
-                        else if (!force)
-                            Console.WriteLine($"rm: cannot remove '{target}': No such file or directory");
+                        else
+                        {
+                            if (!force)
+                                output.WriteLine($"rm: cannot remove '{target}': No such file or directory", ConsoleColor.Red);
+                        }
                     }
                     catch (UnauthorizedAccessException)
                     {
                         if (!force)
-                            Console.WriteLine($"rm: cannot remove '{target}': Permission denied");
+                            output.WriteLine($"rm: cannot remove '{target}': Permission denied", ConsoleColor.Red);
                     }
                     catch (IOException ex)
                     {
                         if (!force)
-                            Console.WriteLine($"rm: cannot remove '{target}': {ex.Message}");
+                            output.WriteLine($"rm: cannot remove '{target}': {ex.Message}", ConsoleColor.Red);
                     }
                     catch (Exception ex)
                     {
                         if (!force)
-                            Console.WriteLine($"rm: cannot remove '{target}': {ex.Message}");
+                            output.WriteLine($"rm: cannot remove '{target}': {ex.Message}", ConsoleColor.Red);
                     }
                 }
             }
             catch (Exception ex)
             {
                 if (!force)
-                    Console.WriteLine($"rm: error: {ex.Message}");
+                    output.WriteLine($"rm: error: {ex.Message}", ConsoleColor.Red);
             }
         }
 
+        public void Rmdir(string path, bool recursive = false, bool force = false)
+        {
+            DefaultOutput output = new();
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                if (!force) output.WriteLine("rmdir: missing operand", ConsoleColor.Red);
+                return;
+            }
+            
+            string ResolveToFull(string p)
+            {
+                if (p == "~")
+                    p = _home;
+                else if (p.StartsWith("~"))
+                    p = Path.Combine(_home, p.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                return Path.IsPathRooted(p) ? Path.GetFullPath(p) : Path.GetFullPath(Path.Combine(_current, p));
+            }
+
+            try
+            {
+                var targets = new List<string>();
+
+                if (path.Contains('*') || path.Contains('?'))
+                {
+                    string dirPart = Path.GetDirectoryName(path) ?? "";
+                    string pattern = Path.GetFileName(path);
+
+                    string dirResolved = string.IsNullOrEmpty(dirPart) ? _current : ResolveToFull(dirPart);
+
+                    try
+                    {
+                        if (Directory.Exists(dirResolved))
+                        {
+                            var dirs = Directory.GetDirectories(dirResolved, pattern);
+                            targets.AddRange(dirs);
+                        }
+                    }
+                    catch { }
+                }
+                else
+                    targets.Add(ResolveToFull(path));
+
+                if (targets.Count == 0)
+                {
+                    if (!force)
+                        output.WriteLine($"rmdir: failed to remove '{path}': No such file or directory", ConsoleColor.Red);
+                    return;
+                }
+
+                foreach (var target in targets)
+                {
+                    try
+                    {
+                        if (Directory.Exists(target))
+                        {
+                            if (!recursive)
+                            {
+                                bool isEmpty;
+                                try
+                                {
+                                    isEmpty = !Directory.EnumerateFileSystemEntries(target).Any();
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (!force)
+                                        output.WriteLine($"rmdir: failed to remove '{target}': {ex.Message}", ConsoleColor.Red);
+                                    continue;
+                                }
+
+                                if (!isEmpty)
+                                {
+                                    if (!force)
+                                        output.WriteLine($"rmdir: failed to remove '{target}': Directory not empty", ConsoleColor.Red);
+                                    continue;
+                                }
+
+                                Directory.Delete(target);
+                            }
+                            else
+                                Directory.Delete(target, true);
+                        }
+                        else if (File.Exists(target))
+                        {
+                            if (!force)
+                                output.WriteLine($"rmdir: failed to remove '{target}': Not a directory", ConsoleColor.Red);
+                        }
+                        else
+                        {
+                            if (!force)
+                                output.WriteLine($"rmdir: failed to remove '{target}': No such file or directory", ConsoleColor.Red);
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        if (!force)
+                            output.WriteLine($"rmdir: failed to remove '{target}': Permission denied", ConsoleColor.Red);
+                    }
+                    catch (IOException ex)
+                    {
+                        if (!force)
+                            output.WriteLine($"rmdir: failed to remove '{target}': {ex.Message}", ConsoleColor.Red);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!force)
+                            output.WriteLine($"rmdir: failed to remove '{target}': {ex.Message}", ConsoleColor.Red);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!force)
+                    output.WriteLine($"rmdir: error: {ex.Message}", ConsoleColor.Red);
+            }
+        }
+
+
         public void Mv(string srcPattern, string dst, bool overwrite = false, bool recursive = false)
         {
-            string baseDir = Directory.GetCurrentDirectory();
-            List<string> sources = new();
+            DefaultOutput output = new();
 
-            if (srcPattern.Contains("*") || srcPattern.Contains("?"))
+            string ResolveFull(string p)
             {
-                string dir = Path.GetDirectoryName(srcPattern) ?? baseDir;
-                string pattern = Path.GetFileName(srcPattern);
-                sources.AddRange(Directory.GetFiles(dir, pattern));
-                sources.AddRange(Directory.GetDirectories(dir, pattern));
-            }
-            else
-            {
-                sources.Add(Path.GetFullPath(srcPattern));
+                if (p == "~") p = _home;
+                else if (p.StartsWith("~"))
+                    p = Path.Combine(_home, p.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                return Path.IsPathRooted(p) ? Path.GetFullPath(p) : Path.GetFullPath(Path.Combine(_current, p));
             }
 
-            if (sources.Count == 0)
+            try
             {
-                Console.WriteLine($"mv: cannot stat '{srcPattern}': No such file or directory");
-                return;
-            }
+                List<string> sources = new();
 
-            bool dstIsDir = Directory.Exists(dst) || (sources.Count > 1);
-            string dstDir = dstIsDir ? dst : Path.GetDirectoryName(dst)!;
-
-            if (dstIsDir && !Directory.Exists(dst))
-            {
-                Console.WriteLine($"mv: target '{dst}' is not a directory");
-                return;
-            }
-
-            foreach (var src in sources)
-            {
-                try
+                if (srcPattern.Contains('*') || srcPattern.Contains('?'))
                 {
-                    string name = Path.GetFileName(src);
-                    string targetPath = dstIsDir ? Path.Combine(dst, name) : dst;
+                    string dirPart = Path.GetDirectoryName(srcPattern) ?? "";
+                    string pattern = Path.GetFileName(srcPattern);
 
-                    if (File.Exists(src))
+                    string dirResolved = string.IsNullOrEmpty(dirPart) ? _current : ResolveFull(dirPart);
+
+                    try
                     {
-                        if (File.Exists(targetPath) && !overwrite)
+                        if (Directory.Exists(dirResolved))
                         {
-                            Console.WriteLine($"mv: cannot overwrite '{targetPath}': File exists");
-                            continue;
+                            var files = Directory.GetFiles(dirResolved, pattern);
+                            var dirs = Directory.GetDirectories(dirResolved, pattern);
+                            sources.AddRange(files);
+                            sources.AddRange(dirs);
                         }
-                        if (File.Exists(targetPath))
-                            File.Delete(targetPath);
-                        File.Move(src, targetPath);
                     }
-                    else if (Directory.Exists(src))
+                    catch { }
+                }
+                else
+                    sources.Add(ResolveFull(srcPattern));
+
+                if (sources.Count == 0)
+                {
+                    output.WriteLine($"mv: cannot stat '{srcPattern}': No such file or directory", ConsoleColor.Red);
+                    return;
+                }
+
+                string dstResolved = ResolveFull(dst);
+
+                bool dstIsDir = Directory.Exists(dstResolved) || (sources.Count > 1);
+                string dstDir = dstIsDir ? dstResolved : Path.GetDirectoryName(dstResolved) ?? dstResolved;
+
+                if (dstIsDir && !Directory.Exists(dstResolved))
+                {
+                    output.WriteLine($"mv: target '{dst}' is not a directory", ConsoleColor.Red);
+                    return;
+                }
+
+                foreach (var src in sources)
+                {
+                    try
                     {
-                        if (!recursive)
+                        string name = Path.GetFileName(src);
+                        string targetPath = dstIsDir ? Path.Combine(dstResolved, name) : dstResolved;
+
+                        if (File.Exists(src))
                         {
-                            Console.WriteLine($"mv: cannot move '{src}': Is a directory");
-                            continue;
+                            if (File.Exists(targetPath) && !overwrite)
+                            {
+                                output.WriteLine($"mv: cannot overwrite '{targetPath}': File exists", ConsoleColor.Red);
+                                continue;
+                            }
+                            if (File.Exists(targetPath))
+                                File.Delete(targetPath);
+
+                            string? parent = Path.GetDirectoryName(targetPath);
+                            if (!string.IsNullOrEmpty(parent) && !Directory.Exists(parent))
+                            {
+                                output.WriteLine($"mv: cannot move '{src}': No such directory '{parent}'", ConsoleColor.Red);
+                                continue;
+                            }
+
+                            File.Move(src, targetPath);
                         }
-                        if (Directory.Exists(targetPath) && Directory.EnumerateFileSystemEntries(targetPath).Any() && !overwrite)
+                        else if (Directory.Exists(src))
                         {
-                            Console.WriteLine($"mv: cannot overwrite directory '{targetPath}'");
-                            continue;
+                            if (!recursive)
+                            {
+                                output.WriteLine($"mv: cannot move '{src}': Is a directory", ConsoleColor.Red);
+                                continue;
+                            }
+
+                            if (Directory.Exists(targetPath) && Directory.EnumerateFileSystemEntries(targetPath).Any() && !overwrite)
+                            {
+                                output.WriteLine($"mv: cannot overwrite directory '{targetPath}'", ConsoleColor.Red);
+                                continue;
+                            }
+                            if (Directory.Exists(targetPath))
+                                Directory.Delete(targetPath, true);
+
+                            string? parent = Path.GetDirectoryName(targetPath);
+                            if (!string.IsNullOrEmpty(parent) && !Directory.Exists(parent) && !dstIsDir)
+                            {
+                                output.WriteLine($"mv: cannot move '{src}': No such directory '{parent}'", ConsoleColor.Red);
+                                continue;
+                            }
+
+                            Directory.Move(src, targetPath);
                         }
-                        if (Directory.Exists(targetPath))
-                            Directory.Delete(targetPath, true);
-                        Directory.Move(src, targetPath);
+                        else
+                            output.WriteLine($"mv: cannot stat '{src}': No such file or directory", ConsoleColor.Red);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        output.WriteLine($"mv: cannot move '{src}': Permission denied", ConsoleColor.Red);
+                    }
+                    catch (IOException ex)
+                    {
+                        output.WriteLine($"mv: cannot move '{src}': {ex.Message}", ConsoleColor.Red);
+                    }
+                    catch (Exception ex)
+                    {
+                        output.WriteLine($"mv: cannot move '{src}': {ex.Message}", ConsoleColor.Red);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"mv: cannot move '{src}': {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine($"mv: error: {ex.Message}", ConsoleColor.Red);
             }
         }
 
         public void Cp(string srcPattern, string dst, bool overwrite = false, bool recursive = false)
         {
-            string baseDir = Directory.GetCurrentDirectory();
-            List<string> sources = new();
+            DefaultOutput output = new();
 
-            if (srcPattern.Contains("*") || srcPattern.Contains("?"))
+            string ResolveFull(string p)
             {
-                string dir = Path.GetDirectoryName(srcPattern) ?? baseDir;
-                string pattern = Path.GetFileName(srcPattern);
-                sources.AddRange(Directory.GetFiles(dir, pattern));
-                sources.AddRange(Directory.GetDirectories(dir, pattern));
-            }
-            else
-                sources.Add(Path.GetFullPath(srcPattern));
+                if (p == "~") p = _home;
+                else if (p.StartsWith("~"))
+                    p = Path.Combine(_home, p.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
-            if (sources.Count == 0)
-            {
-                Console.WriteLine($"cp: cannot stat '{srcPattern}': No such file or directory");
-                return;
+                return Path.IsPathRooted(p) ? Path.GetFullPath(p) : Path.GetFullPath(Path.Combine(_current, p));
             }
 
-            bool dstIsDir = Directory.Exists(dst) || (sources.Count > 1);
-            if (dstIsDir && !Directory.Exists(dst))
-                Directory.CreateDirectory(dst);
-
-            foreach (var src in sources)
+            try
             {
-                try
-                {
-                    string name = Path.GetFileName(src);
-                    string targetPath = dstIsDir ? Path.Combine(dst, name) : dst;
+                List<string> sources = new();
 
-                    if (File.Exists(src))
-                    {
-                        if (File.Exists(targetPath) && !overwrite)
-                        {
-                            Console.WriteLine($"cp: cannot overwrite '{targetPath}': File exists");
-                            continue;
-                        }
-                        File.Copy(src, targetPath, overwrite);
-                    }
-                    else if (Directory.Exists(src))
-                    {
-                        if (!recursive)
-                        {
-                            Console.WriteLine($"cp: omitting directory '{src}' (use -r to copy directories)");
-                            continue;
-                        }
-                        CopyDirectory(src, targetPath, overwrite);
-                    }
-                }
-                catch (Exception ex)
+                if (srcPattern.Contains('*') || srcPattern.Contains('?'))
                 {
-                    Console.WriteLine($"cp: cannot copy '{src}': {ex.Message}");
+                    string dirPart = Path.GetDirectoryName(srcPattern) ?? "";
+                    string pattern = Path.GetFileName(srcPattern);
+
+                    string dirResolved = string.IsNullOrEmpty(dirPart) ? _current : ResolveFull(dirPart);
+
+                    try
+                    {
+                        if (Directory.Exists(dirResolved))
+                        {
+                            var files = Directory.GetFiles(dirResolved, pattern);
+                            var dirs = Directory.GetDirectories(dirResolved, pattern);
+                            sources.AddRange(files);
+                            sources.AddRange(dirs);
+                        }
+                    }
+                    catch { }
                 }
+                else
+                    sources.Add(ResolveFull(srcPattern));
+
+                if (sources.Count == 0)
+                {
+                    output.WriteLine($"cp: cannot stat '{srcPattern}': No such file or directory", ConsoleColor.Red);
+                    return;
+                }
+
+                string dstResolved = ResolveFull(dst);
+                bool dstIsDir = Directory.Exists(dstResolved) || (sources.Count > 1);
+
+                if (dstIsDir && !Directory.Exists(dstResolved))
+                {
+                    try { Directory.CreateDirectory(dstResolved); }
+                    catch (Exception ex)
+                    {
+                        output.WriteLine($"cp: cannot create directory '{dst}': {ex.Message}", ConsoleColor.Red);
+                        return;
+                    }
+                }
+
+                foreach (var src in sources)
+                {
+                    try
+                    {
+                        string name = Path.GetFileName(src);
+                        string targetPath = dstIsDir ? Path.Combine(dstResolved, name) : dstResolved;
+
+                        if (File.Exists(src))
+                        {
+                            if (File.Exists(targetPath) && !overwrite)
+                            {
+                                output.WriteLine($"cp: cannot overwrite '{targetPath}': File exists", ConsoleColor.Red);
+                                continue;
+                            }
+
+                            string? parent = Path.GetDirectoryName(targetPath);
+                            if (!string.IsNullOrEmpty(parent) && !Directory.Exists(parent))
+                            {
+                                try { Directory.CreateDirectory(parent); }
+                                catch (Exception ex)
+                                {
+                                    output.WriteLine($"cp: cannot copy '{src}': {ex.Message}", ConsoleColor.Red);
+                                    continue;
+                                }
+                            }
+
+                            File.Copy(src, targetPath, overwrite);
+                        }
+                        else if (Directory.Exists(src))
+                        {
+                            if (!recursive)
+                            {
+                                output.WriteLine($"cp: omitting directory '{src}' (use -r to copy directories)", ConsoleColor.Red);
+                                continue;
+                            }
+
+                            CopyDirectory(src, targetPath, overwrite);
+                        }
+                        else
+                            output.WriteLine($"cp: cannot stat '{src}': No such file or directory", ConsoleColor.Red);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        output.WriteLine($"cp: cannot copy '{src}': Permission denied", ConsoleColor.Red);
+                    }
+                    catch (IOException ex)
+                    {
+                        output.WriteLine($"cp: cannot copy '{src}': {ex.Message}", ConsoleColor.Red);
+                    }
+                    catch (Exception ex)
+                    {
+                        output.WriteLine($"cp: cannot copy '{src}': {ex.Message}", ConsoleColor.Red);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine($"cp: error: {ex.Message}", ConsoleColor.Red);
             }
         }
 
-        public IEnumerable<string> Find(string root = ".", string? namePattern = null, string? type = null, int? maxDepth = null)
+        public void Find(string root = ".", string? namePattern = null, string? type = null, int? maxDepth = null)
         {
-            var results = new List<string>();
-            FindInner(Path.GetFullPath(root), namePattern, type, 0, maxDepth, results);
-            return results;
+            DefaultOutput output = new();
+
+            string ResolveFull(string p)
+            {
+                if (p == "~")
+                    p = _home;
+                else if (p.StartsWith("~"))
+                    p = Path.Combine(_home, p.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                return Path.IsPathRooted(p) ? Path.GetFullPath(p) : Path.GetFullPath(Path.Combine(_current, p));
+            }
+
+            try
+            {
+                string resolvedRoot = ResolveFull(root);
+
+                if (!Directory.Exists(resolvedRoot))
+                {
+                    output.WriteLine($"find: '{root}': No such directory", ConsoleColor.Red);
+                    return;
+                }
+
+                FindStreamInner(resolvedRoot, namePattern, type, 0, maxDepth, output);
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine($"find: error: {ex.Message}", ConsoleColor.Red);
+            }
         }
 
-        public void Tree(string root = ".", int? maxDepth = null) => PrintTree(Path.GetFullPath(root), "", true, 0, maxDepth);
+        public void Tree(string root = ".", int? maxDepth = null)
+        {
+            DefaultOutput output = new();
+
+            string ResolveFull(string p)
+            {
+                if (p == "~")
+                    p = _home;
+                else if (p.StartsWith("~"))
+                    p = Path.Combine(_home, p.Substring(1).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+                return Path.IsPathRooted(p) ? Path.GetFullPath(p) : Path.GetFullPath(Path.Combine(_current, p));
+            }
+
+            try
+            {
+                string resolvedRoot = ResolveFull(root);
+
+                if (!Directory.Exists(resolvedRoot))
+                {
+                    output.WriteLine($"tree: cannot access '{root}': No such directory", ConsoleColor.Red);
+                    return;
+                }
+
+                PrintTree(resolvedRoot, "", true, 0, maxDepth);
+            }
+            catch (Exception ex)
+            {
+                output.WriteLine($"tree: error: {ex.Message}", ConsoleColor.Red);
+            }
+        }
 
 
         #region Private Methods
+        private ConsoleColor GetColorForEntry(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path)) return ConsoleColor.Blue;
+
+                var attrs = File.GetAttributes(path);
+                if ((attrs & FileAttributes.Hidden) != 0) return ConsoleColor.DarkGray;
+
+                var ext = Path.GetExtension(path).ToLowerInvariant();
+                string[] execExt = { ".exe", ".bat", ".cmd", ".sh", ".ps1", ".com" };
+                if (execExt.Contains(ext)) return ConsoleColor.Green;
+
+                string[] docExt = { ".txt", ".md", ".log", ".json", ".xml", ".csv" };
+                if (docExt.Contains(ext)) return ConsoleColor.Cyan;
+
+                return ConsoleColor.Gray;
+            }
+            catch
+            {
+                return ConsoleColor.Gray;
+            }
+        }
+
         private void CopyDirectory(string sourceDir, string destDir, bool overwrite)
         {
             if (!Directory.Exists(destDir))
@@ -410,30 +917,6 @@ namespace MultiTerminal.FileSystem
                 CopyDirectory(dir, Path.Combine(destDir, Path.GetFileName(dir)), overwrite);
             }
         }
-
-        private void PrintLong(FileInfo file, int sizeWidth, bool human)
-        {
-            DefaultOutput output = new();
-            string perms = GetPermissions(file);
-            int links = 1;
-            string owner = "-";
-            string group = "-";
-            string size = FormatSize(file.Length, human).PadLeft(sizeWidth);
-            string mtime = file.LastWriteTime.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
-
-            output.WriteLine($"{perms} {links,3} {owner,8} {group,8} {size} {mtime} {file.Name}");
-        }
-
-        private void PrintName(FileInfo file)
-        {
-            DefaultOutput output = new();
-            if ((file.Attributes & FileAttributes.Directory) != 0)
-                output.Write(file.Name, ConsoleColor.Blue, null);
-            else
-                output.Write(file.Name);
-            output.Write("  ");
-        }
-
         private string FormatSize(long size, bool human)
         {
             if (!human) return size.ToString();
@@ -448,22 +931,7 @@ namespace MultiTerminal.FileSystem
             return $"{readable:0.##}{symbols[idx]}";
         }
 
-        private string GetPermissions(FileInfo file)
-        {
-            bool isDir = (file.Attributes & FileAttributes.Directory) != 0;
-            bool canWrite = (file.Attributes & FileAttributes.ReadOnly) == 0;
-            return (isDir ? "d" : "-") +
-                   (file.Exists ? "r" : "-") +
-                   (canWrite ? "w" : "-") + "x------";
-        }
-
-        private bool IsHidden(FileInfo file)
-        {
-            return file.Name.StartsWith(".") ||
-                   (file.Attributes & FileAttributes.Hidden) != 0;
-        }
-
-        private static void FindInner(string dir, string? namePattern, string? type, int depth, int? maxDepth, List<string> results)
+        private static void FindStreamInner(string dir, string? namePattern, string? type, int depth, int? maxDepth, DefaultOutput output)
         {
             if (maxDepth.HasValue && depth > maxDepth) return;
 
@@ -487,10 +955,11 @@ namespace MultiTerminal.FileSystem
                     (type == "d" && isDir))
                 {
                     if (namePattern == null || WildcardMatch(Path.GetFileName(entry), namePattern))
-                        results.Add(entry);
+                        output.WriteLine(entry);
                 }
+
                 if (isDir)
-                    FindInner(entry, namePattern, type, depth + 1, maxDepth, results);
+                    FindStreamInner(entry, namePattern, type, depth + 1, maxDepth, output);
             }
         }
 

@@ -17,7 +17,20 @@ namespace MultiTerminal
             commands.RegisterCommand("passgen", Commands.PasswordGenerator);
             commands.RegisterCommand("passmgr", Commands.PasswordManager);
 
-            commands.RegisterCommand("exit", (Args) => Commands.Exit());
+            commands.RegisterCommand("cd", Commands.Cd);
+            commands.RegisterCommand("cd..", Commands.CdBack);
+            commands.RegisterCommand("pwd", Commands.Pwd);
+            commands.RegisterCommand(["ls", "dir", "list"], Commands.Ls);
+            commands.RegisterCommand("mkdir", Commands.Mkdir);
+            commands.RegisterCommand("touch", Commands.Touch);
+            commands.RegisterCommand(["del", "delete", "rm", "remove"], Commands.Rm);
+            commands.RegisterCommand("rmdir", Commands.Rmdir);
+            commands.RegisterCommand(["mv", "move"], Commands.Mv);
+            commands.RegisterCommand(["cp, copy"], Commands.Cp);
+            commands.RegisterCommand("find", Commands.Find);
+            commands.RegisterCommand("tree", Commands.Tree);
+
+            commands.RegisterCommand("exit", Commands.Exit);
         }
 
 

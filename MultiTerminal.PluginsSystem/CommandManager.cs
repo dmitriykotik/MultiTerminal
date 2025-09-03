@@ -68,7 +68,7 @@ namespace MultiTerminal.PluginsSystem
             string[] args;
             try
             {
-                args = DefaultArguments.RFArg(DefaultArguments.SplitArgs(input));
+                args = DefaultArguments.RFArg(input);
             }
             catch (Exceptions.NullField)
             {
